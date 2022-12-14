@@ -10,7 +10,7 @@ refs = {
   seconds: document.querySelector('[data-seconds]'),
 };
 
-let deadlineTimer = new Date();
+let deadlineTimer = null;
 
 const options = {
   enableTime: true,
@@ -40,11 +40,13 @@ const timer = {
 
   start() {
     this.intervalId = setInterval(() => {
-      const startTime = deadlineTimer - Date.now();
-      //   console.log('currentTime', currentTime);
-      const timeComponents = convertMs(startTime);
+      const deltaTime = deadlineTimer - Date.now();
+      const timeComponents = convertMs(deltaTime);
 
       updClockInterface(timeComponents);
+      if (deltaTime < 1000) {
+        clearInterval(this.intervalId);
+      }
     }, 1000);
   },
 };
