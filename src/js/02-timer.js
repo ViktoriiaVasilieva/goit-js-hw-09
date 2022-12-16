@@ -12,6 +12,7 @@ const refs = {
 };
 
 let deadlineTimer = null;
+let intervalId = null;
 
 const options = {
   enableTime: true,
@@ -24,33 +25,27 @@ const options = {
 
     if (deadlineTimer < Date.now()) {
       Notiflix.Notify.warning('Please choose a date in the future');
-      refs.startBtn.setAttribute('disabled', false);
-    } else {
-      refs.startBtn.toggleAttribute('disabled');
+      return;
     }
+    refs.startBtn.disabled = false;
   },
 };
-const flatPcr = flatpickr(refs.input, options);
+flatpickr(refs.input, options);
 
-refs.startBtn.setAttribute('disabled', false);
-refs.input.addEventListener('input', flatPcr);
-refs.startBtn.addEventListener('click', () => timer.start());
+refs.startBtn.addEventListener('click', onStartClick);
+refs.startBtn.disabled = true;
 
-const timer = {
-  intervalId: null,
+function onStartClick() {
+  intervalId = setInterval(() => {
+    const deltaTime = deadlineTimer - Date.now();
+    const timeComponents = convertMs(deltaTime);
 
-  start() {
-    this.intervalId = setInterval(() => {
-      const deltaTime = deadlineTimer - Date.now();
-      const timeComponents = convertMs(deltaTime);
-
-      updClockInterface(timeComponents);
-      if (deltaTime < 1000) {
-        clearInterval(this.intervalId);
-      }
-    }, 1000);
-  },
-};
+    updClockInterface(timeComponents);
+    if (deltaTime < 1000) {
+      clearInterval(intervalId);
+    }
+  }, 1000);
+}
 
 function updClockInterface({ days, hours, minutes, seconds }) {
   refs.days.textContent = `${days}`;
@@ -75,7 +70,3 @@ function convertMs(ms) {
   const seconds = pad(Math.floor((((ms % day) % hour) % minute) / second));
   return { days, hours, minutes, seconds };
 }
-
-// console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
-// console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
-// console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
