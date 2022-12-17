@@ -11,32 +11,40 @@ refs.form.addEventListener('submit', onFormSubmit);
 
 function onFormSubmit(e) {
   e.preventDefault();
-  createPromises(Number(refs.delay.value), Number(refs.step.value));
-}
+  // createPromises(Number(refs.delay.value), Number(refs.step.value));
 
-function createPromises(delay, step) {
-  for (let i = 1; i <= Number(refs.amount.value); i += 1) {
-    delay += step;
-    createPromise(i, delay).then(onSucces).catch(onError);
+  for (let i = 0; i < Number(refs.amount.value); i += 1) {
+    let position = i + 1;
+    let delay = Number(refs.delay.value) + Number(refs.step.value) * i;
+    createPromise(position, delay)
+      .then(result => {
+        result;
+      })
+      .catch(result => {
+        result;
+      });
   }
 }
 
 function createPromise(position, delay) {
   return new Promise((resolve, reject) => {
+    const shouldResolve = Math.random() > 0.3;
     setTimeout(() => {
-      const shouldResolve = Math.random() > 0.3;
       if (shouldResolve) {
-        resolve({ position, delay });
+        resolve(
+          Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`)
+        );
+      } else {
+        reject(Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`));
       }
-      reject({ position, delay });
     }, delay);
   });
 }
 
-function onSucces({ position, delay }) {
-  Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
-}
+// function onSucces({ position, delay }) {
+//   Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
+// }
 
-function onError({ position, delay }) {
-  Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
-}
+// function onError({ position, delay }) {
+//   Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
+// }
